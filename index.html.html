@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Research Capacity Planner</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #d1d5db;
+      --accent: #1f4e79;
+      --accent-2: #2f75b5;
+      --green: #1f7a3f;
+      --yellow: #a16207;
+      --red: #b91c1c;
+      --rad-blue: #2f75b5;
+      --nonrad-red: #b91c1c;
+      --soft-green: #e8f5ec;
+      --soft-yellow: #fff7df;
+      --soft-red: #fdecec;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.35;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--accent), #16324f);
+      color: white;
+      padding: 24px 32px;
+    }
+
+    header h1 {
+      margin: 0 0 6px 0;
+      font-size: 28px;
+      letter-spacing: 0.2px;
+    }
+
+    header p {
+      margin: 0;
+      color: #dbeafe;
+      max-width: 980px;
+    }
+
+    main {
+      padding: 24px 32px 48px;
+      max-width: 1500px;
+      margin: 0 auto;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .span-12 { grid-column: span 12; }
+    .span-8 { grid-column: span 8; }
+    .span-6 { grid-column: span 6; }
+    .span-4 { grid-column: span 4; }
+    .span-3 { grid-column: span 3; }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .muted { color: var(--muted); }
+
+    label {
+      display: block;
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+
+    input, select, textarea, button {
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: white;
+      color: var(--ink);
+    }
+
+    textarea { resize: vertical; min-height: 70px; }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 13px;
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    button:hover { background: var(--accent-2); }
+
+    button.secondary {
+      background: #e5e7eb;
+      color: var(--ink);
+    }
+
+    button.secondary:hover { background: #d1d5db; }
+
+    button.danger {
+      background: var(--red);
+    }
+
+    button.danger:hover { background: #991b1b; }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .field-2 { grid-column: span 2; }
+    .field-3 { grid-column: span 3; }
+    .field-4 { grid-column: span 4; }
+    .field-6 { grid-column: span 6; }
+    .field-8 { grid-column: span 8; }
+    .field-12 { grid-column: span 12; }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      background: #fbfdff;
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metric .value {
+      font-size: 28px;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+
+    .status {
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 800;
+      display: inline-block;
+      font-size: 13px;
+    }
+
+    .status.green { background: var(--soft-green); color: var(--green); }
+    .status.yellow { background: var(--soft-yellow); color: var(--yellow); }
+    .status.red { background: var(--soft-red); color: var(--red); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      padding: 9px 8px;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      background: #f9fafb;
+    }
+
+    tr:hover td { background: #fafafa; }
+
+    .table-wrap { overflow-x: auto; }
+
+    .bar-shell {
+      width: 100%;
+      height: 18px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .bar {
+      height: 100%;
+      background: var(--accent-2);
+      width: 0%;
+      transition: width 0.2s ease;
+    }
+
+    .bar.green { background: var(--green); }
+    .bar.yellow { background: var(--yellow); }
+    .bar.red { background: var(--red); }
+
+    .stacked-shell {
+      width: 100%;
+      height: 20px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 6px;
+      display: flex;
+    }
+
+    .stacked-rad { background: var(--rad-blue); height: 100%; }
+    .stacked-nonrad { background: var(--nonrad-red); height: 100%; }
+
+    .legend-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      margin-right: 4px;
+    }
+
+    .note {
+      background: #eef6ff;
+      border-left: 4px solid var(--accent-2);
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #19324d;
+      font-size: 14px;
+    }
+
+    .small { font-size: 12px; }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 8px;
+      background: #eef2ff;
+      color: #3730a3;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .right { text-align: right; }
+
+    .hidden { display: none; }
+
+    @media (max-width: 900px) {
+      main { padding: 16px; }
+      header { padding: 20px 16px; }
+      .span-8, .span-6, .span-4, .span-3 { grid-column: span 12; }
+      .field-2, .field-3, .field-4, .field-6, .field-8 { grid-column: span 12; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Research Capacity Planner</h1>
+    <p>A lightweight prototype for estimating weekly team capacity, workload demand, and research/analysis hours available after recurring commitments. Data auto-saves in this browser; export JSON for backup or transfer.</p>
+  </header>
+
+  <main>
+    <div class="grid">
+      <section class="card span-12">
+        <div class="button-row" style="justify-content:space-between; margin-bottom:12px;">
+          <div>
+            <h2 style="margin:0;">Dashboard</h2>
+            <div class="muted small" id="viewRangeText">Viewing workload for the selected planning period.</div>
+          </div>
+          <div class="button-row" style="align-items:end;">
+            <div style="min-width:180px;">
+              <label for="planningView">View</label>
+              <select id="planningView" onchange="setPlanningView(this.value)">
+                <option value="week">Single Week</option>
+                <option value="fourWeeks">Next 4 Weeks</option>
+                <option value="month">Calendar Month</option>
+              </select>
+            </div>
+            <div style="min-width:220px;">
+              <label for="planningWeek">Period Start</label>
+              <input id="planningWeek" type="date" onchange="setPlanningWeek(this.value)" />
+            </div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="metric span-3">
+            <div class="label">Analyst Gross Capacity</div>
+            <div class="value" id="analystGross">0</div>
+            <div class="muted small">hours/week</div>
+          </div>
+          <div class="metric span-3">
+            <div class="label">Analyst Production Capacity</div>
+            <div class="value" id="analystAdjusted">0</div>
+            <div class="muted small">after leave, admin, and overhead</div>
+          </div>
+          <div class="metric span-3">
+            <div class="label">Planned Analyst Workload</div>
+            <div class="value" id="analystDemand">0</div>
+            <div class="muted small">active planned task hours</div>
+          </div>
+          <div class="metric span-3">
+            <div class="label">Capacity Status</div>
+            <div class="value" id="capacityBalance">0</div>
+            <div id="capacityStatus" class="status green">Healthy</div>
+          </div>
+        </div>
+        <div style="margin-top:16px;">
+          <strong>Analyst Utilization</strong>
+          <div class="bar-shell"><div id="utilizationBar" class="bar green"></div></div>
+          <div class="muted small" id="utilizationText">0%</div>
+        </div>
+      </section>
+
+      <section class="card span-4">
+        <h2>Planning Assumptions</h2>
+        <div class="form-row">
+          <div class="field-6">
+            <label for="hoursPerDay">Hours / Day</label>
+            <input id="hoursPerDay" type="number" min="0" step="0.5" value="8" />
+          </div>
+          <div class="field-6">
+            <label for="workDays">Workdays / Week</label>
+            <input id="workDays" type="number" min="0" step="0.5" value="5" />
+          </div>
+          <div class="field-6">
+            <label for="defaultOverhead">Default Overhead %</label>
+            <input id="defaultOverhead" type="number" min="0" max="100" step="1" value="20" />
+          </div>
+          <div class="field-6">
+            <label for="planningBuffer">Planning Buffer %</label>
+            <input id="planningBuffer" type="number" min="0" max="100" step="1" value="12" />
+          </div>
+        </div>
+        <div class="note">
+          <strong>Planning logic:</strong> gross capacity is reduced by leave/TDY, recurring admin/meetings, default overhead, and planning buffer. The dashboard compares planned workload against adjusted production capacity for the selected planning period. In four-week and monthly views, weekly capacity is multiplied by the number of weeks in the selected period.
+          <br /><br />
+          <strong>Save behavior:</strong> entries auto-save to this browser using local storage. Use <strong>Export JSON</strong> to back up the app data or move it to another computer/browser. CSV export is for reporting, not full restoration.
+        </div>
+      </section>
+
+      <section class="card span-8">
+        <h2>Personnel Capacity</h2>
+        <div class="table-wrap">
+          <table id="personnelTable">
+            <thead>
+              <tr>
+                <th>Name / Role</th>
+                <th>Role Type</th>
+                <th>FTE</th>
+                <th>Leave/TDY</th>
+                <th>Admin/Meetings</th>
+                <th>Production Hrs</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <h3 style="margin-top:16px;">Add Person / Role</h3>
+        <div class="form-row">
+          <div class="field-4">
+            <label for="personName">Name / Role</label>
+            <input id="personName" placeholder="Analyst 1" />
+          </div>
+          <div class="field-3">
+            <label for="personRole">Role Type</label>
+            <select id="personRole">
+              <option>Analyst</option>
+              <option>Editor</option>
+              <option>Deputy Assistant Director</option>
+              <option>Assistant Director</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field-2">
+            <label for="personFte">FTE</label>
+            <input id="personFte" type="number" min="0" step="0.1" value="1" />
+          </div>
+          <div class="field-3" style="display:flex; align-items:end;">
+            <button onclick="addPerson()">Add Role</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card span-6">
+        <h2>Task Library</h2>
+        <div class="table-wrap">
+          <table id="libraryTable">
+            <thead>
+              <tr>
+                <th>Task Type</th>
+                <th>Category</th>
+                <th>Default Hrs</th>
+                <th>Primary Role</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <h3 style="margin-top:16px;">Add / Update Task Type</h3>
+        <div class="form-row">
+          <div class="field-4">
+            <label for="taskTypeName">Task Type</label>
+            <input id="taskTypeName" placeholder="Example: RFI" />
+          </div>
+          <div class="field-3">
+            <label for="taskDefaultHours">Default Hrs</label>
+            <input id="taskDefaultHours" type="number" min="0" step="0.5" value="4" />
+          </div>
+          <div class="field-5">
+            <label for="taskPrimaryRole">Primary Role</label>
+            <select id="taskPrimaryRole">
+              <option>Analyst</option>
+              <option>Editor</option>
+              <option>Deputy Assistant Director</option>
+              <option>Assistant Director</option>
+              <option>All</option>
+            </select>
+          </div>
+          <div class="field-8">
+            <label for="taskCategory">Category</label>
+            <input id="taskCategory" placeholder="Research production" />
+          </div>
+          <div class="field-4" style="display:flex; align-items:end;">
+            <button onclick="addTaskType()">Add / Update</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card span-6">
+        <h2>Add Workload Item</h2>
+        <div class="form-row">
+          <div class="field-6">
+            <label for="workTaskName">Task Name</label>
+            <input id="workTaskName" placeholder="Example: Arctic Maritime RFI" />
+          </div>
+          <div class="field-6">
+            <label for="workTaskType">Task Type</label>
+            <select id="workTaskType" onchange="fillDefaultHours()"></select>
+          </div>
+          <div class="field-4">
+            <label for="workAssignedTo">Assigned To</label>
+            <select id="workAssignedTo"></select>
+            <div class="muted small">Choose “All Personnel” to create one copy for each person.</div>
+          </div>
+          <div class="field-4">
+            <label for="workDueDate">Due Date</label>
+            <input id="workDueDate" type="date" />
+          </div>
+          <div class="field-4">
+            <label for="workHours">Estimated Hours</label>
+            <input id="workHours" type="number" min="0" step="0.5" />
+          </div>
+          <div class="field-4">
+            <label for="workScope">RAD / Non-RAD</label>
+            <select id="workScope">
+              <option selected>RAD</option>
+              <option>Non-RAD</option>
+            </select>
+          </div>
+          <div class="field-4">
+            <label for="workPriority">Priority</label>
+            <select id="workPriority">
+              <option>High</option>
+              <option selected>Medium</option>
+              <option>Low</option>
+            </select>
+          </div>
+          <div class="field-4">
+            <label for="workStatus">Status</label>
+            <select id="workStatus">
+              <option>Not Started</option>
+              <option>In Progress</option>
+              <option>Complete</option>
+              <option>Deferred</option>
+            </select>
+          </div>
+          <div class="field-4" style="display:flex; align-items:end;">
+            <button onclick="addWorkItem()">Add Task</button>
+          </div>
+          <div class="field-12">
+            <label for="workNotes">Notes</label>
+            <textarea id="workNotes" placeholder="Optional notes, assumptions, dependencies, or risk comments"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="card span-12">
+        <div class="button-row" style="justify-content:space-between; margin-bottom:8px;">
+          <h2 style="margin:0;">Workload Forecast</h2>
+          <div class="button-row">
+            <button onclick="generateReport()">Generate Report</button>
+            <button class="secondary" onclick="exportCSV()">Export CSV</button>
+            <button class="secondary" onclick="exportJSON()">Export JSON</button>
+            <label class="secondary" style="padding:10px 13px; border-radius:10px; cursor:pointer; background:#e5e7eb; font-weight:700; margin:0;">
+              Import JSON
+              <input id="importFile" type="file" accept="application/json" class="hidden" onchange="importJSON(event)" />
+            </label>
+            <button class="danger" onclick="resetAll()">Reset Prototype</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="workloadTable">
+            <thead>
+              <tr>
+                <th>Task</th>
+                <th>Week</th>
+                <th>Type</th>
+                <th>Assigned</th>
+                <th>Due</th>
+                <th>Hours</th>
+                <th>Scope</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Notes</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card span-6">
+        <h2>Workload by Role</h2>
+        <div id="roleSummary"></div>
+      </section>
+
+      <section class="card span-6">
+        <h2>RAD vs Non-RAD Workload by Category</h2>
+        <div class="muted small" style="margin-bottom:10px;">
+          Horizontal stacked bars show active workload in the selected period. Blue = RAD. Red = Non-RAD.
+        </div>
+        <div id="categorySummary"></div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "researchCapacityPlannerV1";
+
+    const defaultState = {
+      assumptions: {
+        hoursPerDay: 8,
+        workDays: 5,
+        defaultOverhead: 20,
+        planningBuffer: 12
+      },
+      selectedWeek: getWeekStart(new Date()),
+      selectedView: "week",
+      personnel: [
+        { id: crypto.randomUUID(), name: "Analyst 1", role: "Analyst", fte: 1, leave: 0, admin: 0 },
+        { id: crypto.randomUUID(), name: "Analyst 2", role: "Analyst", fte: 1, leave: 0, admin: 0 },
+        { id: crypto.randomUUID(), name: "Analyst 3", role: "Analyst", fte: 1, leave: 0, admin: 0 },
+        { id: crypto.randomUUID(), name: "Analyst 4", role: "Analyst", fte: 1, leave: 0, admin: 0 },
+        { id: crypto.randomUUID(), name: "Journal Editor", role: "Editor", fte: 1, leave: 0, admin: 0 },
+        { id: crypto.randomUUID(), name: "Deputy Assistant Director", role: "Deputy Assistant Director", fte: 1, leave: 0, admin: 0 },
+        { id: crypto.randomUUID(), name: "Assistant Director", role: "Assistant Director", fte: 1, leave: 0, admin: 0 }
+      ],
+      taskLibrary: [
+        { type: "RFI", category: "Research production", hours: 4, role: "Analyst" },
+        { type: "Executive summary", category: "Research production", hours: 8, role: "Analyst" },
+        { type: "Short analytical memo", category: "Research production", hours: 16, role: "Analyst" },
+        { type: "Literature review", category: "Research production", hours: 32, role: "Analyst" },
+        { type: "Research interview", category: "Research production", hours: 2, role: "Analyst" },
+        { type: "Panel preparation", category: "Engagement / public-facing support", hours: 3, role: "Analyst" },
+        { type: "Professional development", category: "Internal development / non-production", hours: 2, role: "All" },
+        { type: "Course facilitator", category: "Education support / engagement", hours: 9, role: "Analyst" },
+        { type: "Journal article edit", category: "Editorial", hours: 12, role: "Editor" },
+        { type: "Formal product review", category: "Review / clearance", hours: 4, role: "Deputy Assistant Director" },
+        { type: "Senior leader prep", category: "Leadership support", hours: 6, role: "Analyst" }
+      ],
+      workload: []
+    };
+
+    let state = loadState();
+
+    function clone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return clone(defaultState);
+      try {
+        const loaded = JSON.parse(saved);
+        loaded.selectedWeek = loaded.selectedWeek || getWeekStart(new Date());
+        loaded.selectedView = loaded.selectedView || "week";
+        loaded.workload = (loaded.workload || []).map(w => ({
+          ...w,
+          weekStart: w.weekStart || getWeekStart(w.dueDate || new Date()),
+          scope: w.scope || "RAD"
+        }));
+        return loaded;
+      } catch {
+        return clone(defaultState);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function number(value) {
+      const parsed = parseFloat(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function grossWeeklyHours(person) {
+      return person.fte * state.assumptions.hoursPerDay * state.assumptions.workDays;
+    }
+
+    function productionHours(person) {
+      const gross = grossWeeklyHours(person);
+      const baseAfterDirectReductions = Math.max(0, gross - number(person.leave) - number(person.admin));
+      const overheadFactor = Math.max(0, 1 - state.assumptions.defaultOverhead / 100);
+      const bufferFactor = Math.max(0, 1 - state.assumptions.planningBuffer / 100);
+      return baseAfterDirectReductions * overheadFactor * bufferFactor;
+    }
+
+    function activeWorkload() {
+      const range = selectedDateRange();
+      return state.workload.filter(w => {
+        const itemWeek = w.weekStart || getWeekStart(w.dueDate || new Date());
+        return w.status !== "Complete" &&
+          w.status !== "Deferred" &&
+          itemWeek >= range.start &&
+          itemWeek <= range.end;
+      });
+    }
+
+    function workloadForSelectedWeek() {
+      const range = selectedDateRange();
+      return state.workload.filter(w => {
+        const itemWeek = w.weekStart || getWeekStart(w.dueDate || new Date());
+        return itemWeek >= range.start && itemWeek <= range.end;
+      });
+    }
+
+    function workloadForRole(role) {
+      const peopleById = Object.fromEntries(state.personnel.map(p => [p.id, p]));
+      return activeWorkload().filter(w => peopleById[w.assignedTo]?.role === role).reduce((sum, w) => sum + number(w.hours), 0);
+    }
+
+    function render() {
+      renderPlanningWeek();
+      renderAssumptions();
+      renderPersonnel();
+      renderTaskLibrary();
+      renderWorkloadSelectors();
+      renderWorkload();
+      renderDashboard();
+      renderSummaries();
+      saveState();
+    }
+
+    function renderPlanningWeek() {
+      document.getElementById("planningWeek").value = state.selectedWeek;
+      document.getElementById("planningView").value = state.selectedView || "week";
+      const range = selectedDateRange();
+      document.getElementById("viewRangeText").textContent = `Viewing workload from ${range.start} through ${range.end} (${range.weeks} week${range.weeks === 1 ? "" : "s"}).`;
+    }
+
+    function renderAssumptions() {
+      document.getElementById("hoursPerDay").value = state.assumptions.hoursPerDay;
+      document.getElementById("workDays").value = state.assumptions.workDays;
+      document.getElementById("defaultOverhead").value = state.assumptions.defaultOverhead;
+      document.getElementById("planningBuffer").value = state.assumptions.planningBuffer;
+    }
+
+    function renderPersonnel() {
+      const tbody = document.querySelector("#personnelTable tbody");
+      tbody.innerHTML = "";
+      state.personnel.forEach(person => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><input value="${escapeHtml(person.name)}" onchange="updatePerson('${person.id}', 'name', this.value)" /></td>
+          <td>
+            <select onchange="updatePerson('${person.id}', 'role', this.value)">
+              ${["Analyst", "Editor", "Deputy Assistant Director", "Assistant Director", "Other"].map(r => `<option ${r === person.role ? "selected" : ""}>${r}</option>`).join("")}
+            </select>
+          </td>
+          <td><input type="number" min="0" step="0.1" value="${person.fte}" onchange="updatePerson('${person.id}', 'fte', this.value)" /></td>
+          <td><input type="number" min="0" step="0.5" value="${person.leave}" onchange="updatePerson('${person.id}', 'leave', this.value)" /></td>
+          <td><input type="number" min="0" step="0.5" value="${person.admin}" onchange="updatePerson('${person.id}', 'admin', this.value)" /></td>
+          <td><strong>${productionHours(person).toFixed(1)}</strong></td>
+          <td class="right"><button class="secondary" onclick="deletePerson('${person.id}')">Remove</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function renderTaskLibrary() {
+      const tbody = document.querySelector("#libraryTable tbody");
+      tbody.innerHTML = "";
+      state.taskLibrary.forEach(task => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${escapeHtml(task.type)}</td>
+          <td>${escapeHtml(task.category)}</td>
+          <td><strong>${number(task.hours).toFixed(1)}</strong></td>
+          <td><span class="pill">${escapeHtml(task.role)}</span></td>
+          <td class="right"><button class="secondary" onclick="deleteTaskType('${escapeAttr(task.type)}')">Remove</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function renderWorkloadSelectors() {
+      const typeSelect = document.getElementById("workTaskType");
+      const currentType = typeSelect.value;
+      typeSelect.innerHTML = state.taskLibrary.map(t => `<option value="${escapeAttr(t.type)}">${escapeHtml(t.type)}</option>`).join("");
+      if (currentType) typeSelect.value = currentType;
+
+      const assignedSelect = document.getElementById("workAssignedTo");
+      const currentAssigned = assignedSelect.value;
+      assignedSelect.innerHTML = `<option value="ALL">All Personnel</option>` + state.personnel.map(p => `<option value="${p.id}">${escapeHtml(p.name)} — ${escapeHtml(p.role)}</option>`).join("");
+      if (currentAssigned) assignedSelect.value = currentAssigned;
+
+      if (!document.getElementById("workHours").value) fillDefaultHours();
+    }
+
+    function renderWorkload() {
+      const tbody = document.querySelector("#workloadTable tbody");
+      tbody.innerHTML = "";
+      const peopleById = Object.fromEntries(state.personnel.map(p => [p.id, p]));
+
+      workloadForSelectedWeek().forEach(item => {
+        const person = peopleById[item.assignedTo];
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><strong>${escapeHtml(item.name)}</strong></td>
+          <td>${escapeHtml(item.weekStart || "")}</td>
+          <td>${escapeHtml(item.type)}</td>
+          <td>${escapeHtml(person ? person.name : "Unassigned")}</td>
+          <td>${item.dueDate || ""}</td>
+          <td><strong>${number(item.hours).toFixed(1)}</strong></td>
+          <td>${escapeHtml(item.scope || "RAD")}</td>
+          <td>${escapeHtml(item.priority)}</td>
+          <td>${escapeHtml(item.status)}</td>
+          <td>${escapeHtml(item.notes || "")}</td>
+          <td class="right"><button class="secondary" onclick="deleteWorkItem('${item.id}')">Remove</button></td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function renderDashboard() {
+      const analysts = state.personnel.filter(p => p.role === "Analyst");
+      const range = selectedDateRange();
+      const analystGross = analysts.reduce((sum, p) => sum + grossWeeklyHours(p), 0) * range.weeks;
+      const analystAdjusted = analysts.reduce((sum, p) => sum + productionHours(p), 0) * range.weeks;
+      const analystDemand = workloadForRole("Analyst");
+      const balance = analystAdjusted - analystDemand;
+      const utilization = analystAdjusted > 0 ? (analystDemand / analystAdjusted) * 100 : 0;
+
+      document.getElementById("analystGross").textContent = analystGross.toFixed(0);
+      document.getElementById("analystAdjusted").textContent = analystAdjusted.toFixed(0);
+      document.getElementById("analystDemand").textContent = analystDemand.toFixed(0);
+      document.getElementById("capacityBalance").textContent = balance.toFixed(0);
+
+      const status = document.getElementById("capacityStatus");
+      status.classList.remove("green", "yellow", "red");
+      let label = "Healthy";
+      let cls = "green";
+      if (utilization >= 100) { label = "Over Capacity"; cls = "red"; }
+      else if (utilization >= 90) { label = "Fully Committed"; cls = "yellow"; }
+      else if (utilization >= 75) { label = "Healthy Load"; cls = "green"; }
+      else { label = "Capacity Available"; cls = "green"; }
+      status.textContent = label;
+      status.classList.add(cls);
+
+      const bar = document.getElementById("utilizationBar");
+      bar.classList.remove("green", "yellow", "red");
+      bar.classList.add(cls);
+      bar.style.width = `${Math.min(150, utilization)}%`;
+      document.getElementById("utilizationText").textContent = `${utilization.toFixed(1)}% utilization`;
+    }
+
+    function renderSummaries() {
+      const roles = [...new Set(state.personnel.map(p => p.role))];
+      const roleDiv = document.getElementById("roleSummary");
+      roleDiv.innerHTML = roles.map(role => {
+        const range = selectedDateRange();
+        const capacity = state.personnel.filter(p => p.role === role).reduce((sum, p) => sum + productionHours(p), 0) * range.weeks;
+        const demand = workloadForRole(role);
+        const util = capacity > 0 ? (demand / capacity) * 100 : 0;
+        const cls = util >= 100 ? "red" : util >= 90 ? "yellow" : "green";
+        return `<div style="margin-bottom:12px;"><strong>${escapeHtml(role)}</strong><div class="muted small">${demand.toFixed(1)} planned / ${capacity.toFixed(1)} available hrs</div><div class="bar-shell"><div class="bar ${cls}" style="width:${Math.min(150, util)}%"></div></div></div>`;
+      }).join("");
+
+      const libraryByType = Object.fromEntries(state.taskLibrary.map(t => [t.type, t]));
+      const categoryTotals = {};
+      activeWorkload().forEach(w => {
+        const category = libraryByType[w.type]?.category || "Uncategorized";
+        const scope = w.scope === "Non-RAD" ? "Non-RAD" : "RAD";
+        if (!categoryTotals[category]) categoryTotals[category] = { RAD: 0, "Non-RAD": 0 };
+        categoryTotals[category][scope] += number(w.hours);
+      });
+      const categoryDiv = document.getElementById("categorySummary");
+      const entries = Object.entries(categoryTotals)
+        .map(([category, totals]) => ({
+          category,
+          rad: totals.RAD || 0,
+          nonRad: totals["Non-RAD"] || 0,
+          total: (totals.RAD || 0) + (totals["Non-RAD"] || 0)
+        }))
+        .sort((a,b) => b.total - a.total);
+      if (!entries.length) {
+        categoryDiv.innerHTML = `<p class="muted">No active workload items entered yet.</p>`;
+      } else {
+        const maxTotal = Math.max(1, ...entries.map(e => e.total));
+        categoryDiv.innerHTML = `
+          <div class="button-row small" style="margin-bottom:10px;">
+            <span><span class="legend-dot" style="background:var(--rad-blue);"></span>RAD</span>
+            <span><span class="legend-dot" style="background:var(--nonrad-red);"></span>Non-RAD</span>
+          </div>
+          ${entries.map(e => {
+            const radPct = e.total > 0 ? (e.rad / e.total) * 100 : 0;
+            const nonRadPct = e.total > 0 ? (e.nonRad / e.total) * 100 : 0;
+            const totalWidth = Math.max(8, (e.total / maxTotal) * 100);
+            return `<div style="margin-bottom:14px;">
+              <div style="display:flex; justify-content:space-between; gap:12px; font-size:13px; font-weight:700;">
+                <span>${escapeHtml(e.category)}</span>
+                <span>${e.total.toFixed(1)} hrs | RAD ${e.rad.toFixed(1)} / Non-RAD ${e.nonRad.toFixed(1)}</span>
+              </div>
+              <div class="stacked-shell" style="width:${totalWidth}%; min-width:180px;">
+                <div class="stacked-rad" style="width:${radPct}%;"></div>
+                <div class="stacked-nonrad" style="width:${nonRadPct}%;"></div>
+              </div>
+            </div>`;
+          }).join("")}`;
+      }
+    }
+
+    function addPerson() {
+      const name = document.getElementById("personName").value.trim();
+      if (!name) return alert("Enter a name or role.");
+      state.personnel.push({
+        id: crypto.randomUUID(),
+        name,
+        role: document.getElementById("personRole").value,
+        fte: number(document.getElementById("personFte").value),
+        leave: 0,
+        admin: 0
+      });
+      document.getElementById("personName").value = "";
+      render();
+    }
+
+    function updatePerson(id, field, value) {
+      const person = state.personnel.find(p => p.id === id);
+      if (!person) return;
+      person[field] = ["fte", "leave", "admin"].includes(field) ? number(value) : value;
+      render();
+    }
+
+    function deletePerson(id) {
+      if (!confirm("Remove this person/role? Existing assigned tasks will remain but show as unassigned.")) return;
+      state.personnel = state.personnel.filter(p => p.id !== id);
+      render();
+    }
+
+    function addTaskType() {
+      const type = document.getElementById("taskTypeName").value.trim();
+      if (!type) return alert("Enter a task type.");
+      const task = {
+        type,
+        hours: number(document.getElementById("taskDefaultHours").value),
+        role: document.getElementById("taskPrimaryRole").value,
+        category: document.getElementById("taskCategory").value.trim() || "Uncategorized"
+      };
+      const existingIndex = state.taskLibrary.findIndex(t => t.type.toLowerCase() === type.toLowerCase());
+      if (existingIndex >= 0) state.taskLibrary[existingIndex] = task;
+      else state.taskLibrary.push(task);
+      document.getElementById("taskTypeName").value = "";
+      document.getElementById("taskCategory").value = "";
+      render();
+    }
+
+    function deleteTaskType(type) {
+      if (!confirm("Remove this task type from the library? Existing workload items will remain.")) return;
+      state.taskLibrary = state.taskLibrary.filter(t => t.type !== type);
+      render();
+    }
+
+    function fillDefaultHours() {
+      const type = document.getElementById("workTaskType").value;
+      const task = state.taskLibrary.find(t => t.type === type);
+      if (task) document.getElementById("workHours").value = task.hours;
+    }
+
+    function addWorkItem() {
+      const name = document.getElementById("workTaskName").value.trim();
+      if (!name) return alert("Enter a task name.");
+      const assignedTo = document.getElementById("workAssignedTo").value;
+      if (!assignedTo) return alert("Add a person/role before assigning work.");
+
+      const dueDate = document.getElementById("workDueDate").value;
+      const baseItem = {
+        name,
+        type: document.getElementById("workTaskType").value,
+        dueDate,
+        weekStart: state.selectedWeek,
+        hours: number(document.getElementById("workHours").value),
+        scope: document.getElementById("workScope").value,
+        priority: document.getElementById("workPriority").value,
+        status: document.getElementById("workStatus").value,
+        notes: document.getElementById("workNotes").value.trim()
+      };
+
+      const assignees = assignedTo === "ALL" ? state.personnel.map(p => p.id) : [assignedTo];
+      assignees.forEach(personId => {
+        state.workload.push({
+          id: crypto.randomUUID(),
+          ...baseItem,
+          assignedTo: personId
+        });
+      });
+
+      document.getElementById("workTaskName").value = "";
+      document.getElementById("workNotes").value = "";
+      render();
+    }
+
+    function deleteWorkItem(id) {
+      state.workload = state.workload.filter(w => w.id !== id);
+      render();
+    }
+
+    function setPlanningWeek(value) {
+      state.selectedWeek = getWeekStart(value || new Date());
+      render();
+    }
+
+    function setPlanningView(value) {
+      state.selectedView = value || "week";
+      render();
+    }
+
+    function selectedDateRange() {
+      const start = state.selectedWeek || getWeekStart(new Date());
+      const startDate = new Date(start + "T00:00:00");
+      let endDate;
+      let weeks = 1;
+
+      if (state.selectedView === "fourWeeks") {
+        endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 27);
+        weeks = 4;
+      } else if (state.selectedView === "month") {
+        const monthStart = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+        const monthEnd = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
+        const mondayStart = new Date(monthStart);
+        const day = mondayStart.getDay();
+        mondayStart.setDate(monthStart.getDate() - day + (day === 0 ? -6 : 1));
+        startDate.setTime(mondayStart.getTime());
+        endDate = new Date(monthEnd);
+        weeks = Math.ceil(((endDate - startDate) / (1000 * 60 * 60 * 24) + 1) / 7);
+      } else {
+        endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 6);
+        weeks = 1;
+      }
+
+      return {
+        start: startDate.toISOString().slice(0, 10),
+        end: endDate.toISOString().slice(0, 10),
+        weeks
+      };
+    }
+
+    function getWeekStart(input) {
+      const date = input instanceof Date ? new Date(input) : new Date(input + "T00:00:00");
+      if (Number.isNaN(date.getTime())) return new Date().toISOString().slice(0, 10);
+      const day = date.getDay();
+      const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(date.setDate(diff));
+      return monday.toISOString().slice(0, 10);
+    }
+
+    function updateAssumptionsFromInputs() {
+      state.assumptions.hoursPerDay = number(document.getElementById("hoursPerDay").value);
+      state.assumptions.workDays = number(document.getElementById("workDays").value);
+      state.assumptions.defaultOverhead = number(document.getElementById("defaultOverhead").value);
+      state.assumptions.planningBuffer = number(document.getElementById("planningBuffer").value);
+      render();
+    }
+
+    ["hoursPerDay", "workDays", "defaultOverhead", "planningBuffer"].forEach(id => {
+      document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById(id).addEventListener("change", updateAssumptionsFromInputs);
+      });
+    });
+
+    function generateReport() {
+      const range = selectedDateRange();
+      const peopleById = Object.fromEntries(state.personnel.map(p => [p.id, p]));
+      const active = activeWorkload();
+      const allInPeriod = workloadForSelectedWeek();
+      const analysts = state.personnel.filter(p => p.role === "Analyst");
+      const analystGross = analysts.reduce((sum, p) => sum + grossWeeklyHours(p), 0) * range.weeks;
+      const analystAdjusted = analysts.reduce((sum, p) => sum + productionHours(p), 0) * range.weeks;
+      const analystDemand = workloadForRole("Analyst");
+      const analystBalance = analystAdjusted - analystDemand;
+      const analystUtil = analystAdjusted > 0 ? (analystDemand / analystAdjusted) * 100 : 0;
+
+      const roles = [...new Set(state.personnel.map(p => p.role))];
+      const roleRows = roles.map(role => {
+        const capacity = state.personnel.filter(p => p.role === role).reduce((sum, p) => sum + productionHours(p), 0) * range.weeks;
+        const demand = workloadForRole(role);
+        const balance = capacity - demand;
+        const util = capacity > 0 ? (demand / capacity) * 100 : 0;
+        return { role, capacity, demand, balance, util };
+      });
+
+      const libraryByType = Object.fromEntries(state.taskLibrary.map(t => [t.type, t]));
+      const categoryTotals = {};
+      active.forEach(w => {
+        const category = libraryByType[w.type]?.category || "Uncategorized";
+        const scope = w.scope === "Non-RAD" ? "Non-RAD" : "RAD";
+        if (!categoryTotals[category]) categoryTotals[category] = { RAD: 0, "Non-RAD": 0 };
+        categoryTotals[category][scope] += number(w.hours);
+      });
+      const categoryRows = Object.entries(categoryTotals)
+        .map(([category, totals]) => ({
+          category,
+          rad: totals.RAD || 0,
+          nonRad: totals["Non-RAD"] || 0,
+          total: (totals.RAD || 0) + (totals["Non-RAD"] || 0)
+        }))
+        .sort((a, b) => b.total - a.total);
+      const maxCategory = Math.max(1, ...categoryRows.map(c => c.total));
+      const maxRoleDemand = Math.max(1, ...roleRows.map(r => Math.max(r.capacity, r.demand)));
+
+      const byPerson = state.personnel.map(p => {
+        const demand = active.filter(w => w.assignedTo === p.id).reduce((sum, w) => sum + number(w.hours), 0);
+        const capacity = productionHours(p) * range.weeks;
+        return { name: p.name, role: p.role, capacity, demand, balance: capacity - demand, util: capacity > 0 ? (demand / capacity) * 100 : 0 };
+      }).filter(p => p.capacity > 0 || p.demand > 0);
+
+      const workloadRows = allInPeriod.map(w => {
+        const p = peopleById[w.assignedTo];
+        return `<tr><td>${escapeHtml(w.name)}</td><td>${escapeHtml(w.type)}</td><td>${escapeHtml(p?.name || "Unassigned")}</td><td>${escapeHtml(p?.role || "")}</td><td>${escapeHtml(w.dueDate || "")}</td><td>${number(w.hours).toFixed(1)}</td><td>${escapeHtml(w.scope || "RAD")}</td><td>${escapeHtml(w.priority)}</td><td>${escapeHtml(w.status)}</td></tr>`;
+      }).join("");
+
+      const reportHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Research Capacity Report</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; color:#1f2937; margin: 32px; line-height:1.35; }
+    h1 { margin:0 0 4px; color:#1f4e79; }
+    h2 { margin-top:26px; border-bottom:2px solid #d1d5db; padding-bottom:6px; color:#1f2937; }
+    .muted { color:#6b7280; }
+    .bluf { border-left:5px solid #1f4e79; background:#eef6ff; padding:12px 14px; margin:18px 0; }
+    .metrics { display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin:16px 0; }
+    .metric { border:1px solid #d1d5db; border-radius:10px; padding:12px; background:#f9fafb; }
+    .label { color:#6b7280; font-size:12px; text-transform:uppercase; font-weight:700; }
+    .value { font-size:26px; font-weight:800; margin-top:3px; }
+    table { width:100%; border-collapse:collapse; font-size:13px; margin-top:10px; }
+    th, td { border-bottom:1px solid #d1d5db; padding:7px; text-align:left; vertical-align:top; }
+    th { background:#f3f4f6; color:#4b5563; text-transform:uppercase; font-size:11px; letter-spacing:.3px; }
+    .bar-row { margin:10px 0 14px; }
+    .bar-label { display:flex; justify-content:space-between; font-size:13px; font-weight:700; }
+    .bar-shell { height:18px; background:#e5e7eb; border-radius:999px; overflow:hidden; margin-top:4px; }
+    .bar { height:100%; background:#2f75b5; }
+    .stacked-shell { height:18px; background:#e5e7eb; border-radius:999px; overflow:hidden; margin-top:4px; display:flex; }
+    .stacked-rad { height:100%; background:#2f75b5; }
+    .stacked-nonrad { height:100%; background:#b91c1c; }
+    .legend-dot { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:4px; }
+    .red { color:#b91c1c; } .yellow { color:#a16207; } .green { color:#1f7a3f; }
+    .footer { margin-top:28px; font-size:11px; color:#6b7280; }
+    @media print { body { margin: 20mm; } button { display:none; } .pagebreak { page-break-before: always; } }
+  </style>
+</head>
+<body>
+  <button onclick="window.print()" style="float:right;padding:9px 12px;border:0;border-radius:8px;background:#1f4e79;color:white;font-weight:700;">Print / Save as PDF</button>
+  <h1>Research Capacity Report</h1>
+  <div class="muted">Planning period: ${range.start} through ${range.end} | View: ${escapeHtml(state.selectedView || "week")} | Generated: ${new Date().toLocaleString()}</div>
+
+  <div class="bluf"><strong>BLUF:</strong> Analyst utilization for this period is <strong>${analystUtil.toFixed(1)}%</strong>. The analyst team has <strong>${analystAdjusted.toFixed(1)}</strong> adjusted production hours available against <strong>${analystDemand.toFixed(1)}</strong> planned active workload hours, leaving a balance of <strong class="${analystBalance < 0 ? "red" : "green"}">${analystBalance.toFixed(1)}</strong> hours.</div>
+
+  <div class="metrics">
+    <div class="metric"><div class="label">Analyst Gross Capacity</div><div class="value">${analystGross.toFixed(0)}</div><div class="muted">hrs</div></div>
+    <div class="metric"><div class="label">Adjusted Analyst Capacity</div><div class="value">${analystAdjusted.toFixed(0)}</div><div class="muted">hrs</div></div>
+    <div class="metric"><div class="label">Active Analyst Demand</div><div class="value">${analystDemand.toFixed(0)}</div><div class="muted">hrs</div></div>
+    <div class="metric"><div class="label">Analyst Balance</div><div class="value ${analystBalance < 0 ? "red" : "green"}">${analystBalance.toFixed(0)}</div><div class="muted">hrs</div></div>
+  </div>
+
+  <h2>Capacity vs Demand by Role</h2>
+  ${roleRows.map(r => `
+    <div class="bar-row">
+      <div class="bar-label"><span>${escapeHtml(r.role)}</span><span>${r.demand.toFixed(1)} demand / ${r.capacity.toFixed(1)} capacity hrs | ${r.util.toFixed(1)}%</span></div>
+      <div class="bar-shell"><div class="bar" style="width:${Math.min(100, (r.demand / maxRoleDemand) * 100)}%"></div></div>
+    </div>`).join("")}
+  <table><thead><tr><th>Role</th><th>Capacity</th><th>Demand</th><th>Balance</th><th>Utilization</th></tr></thead><tbody>
+    ${roleRows.map(r => `<tr><td>${escapeHtml(r.role)}</td><td>${r.capacity.toFixed(1)}</td><td>${r.demand.toFixed(1)}</td><td class="${r.balance < 0 ? "red" : "green"}">${r.balance.toFixed(1)}</td><td>${r.util.toFixed(1)}%</td></tr>`).join("")}
+  </tbody></table>
+
+  <h2>RAD vs Non-RAD Workload by Category</h2>
+  <div class="muted"><span class="legend-dot" style="background:#2f75b5;"></span>RAD &nbsp;&nbsp; <span class="legend-dot" style="background:#b91c1c;"></span>Non-RAD</div>
+  ${categoryRows.length ? categoryRows.map(c => {
+    const radPct = c.total > 0 ? (c.rad / c.total) * 100 : 0;
+    const nonRadPct = c.total > 0 ? (c.nonRad / c.total) * 100 : 0;
+    const totalWidth = Math.max(8, (c.total / maxCategory) * 100);
+    return `
+    <div class="bar-row">
+      <div class="bar-label"><span>${escapeHtml(c.category)}</span><span>${c.total.toFixed(1)} hrs | RAD ${c.rad.toFixed(1)} / Non-RAD ${c.nonRad.toFixed(1)}</span></div>
+      <div class="stacked-shell" style="width:${totalWidth}%; min-width:180px;"><div class="stacked-rad" style="width:${radPct}%;"></div><div class="stacked-nonrad" style="width:${nonRadPct}%;"></div></div>
+    </div>`;
+  }).join("") : `<p class="muted">No active workload entered for this period.</p>`}
+
+  <h2>Capacity by Person</h2>
+  <table><thead><tr><th>Person / Role</th><th>Role</th><th>Capacity</th><th>Demand</th><th>Balance</th><th>Utilization</th></tr></thead><tbody>
+    ${byPerson.map(p => `<tr><td>${escapeHtml(p.name)}</td><td>${escapeHtml(p.role)}</td><td>${p.capacity.toFixed(1)}</td><td>${p.demand.toFixed(1)}</td><td class="${p.balance < 0 ? "red" : "green"}">${p.balance.toFixed(1)}</td><td>${p.util.toFixed(1)}%</td></tr>`).join("")}
+  </tbody></table>
+
+  <h2 class="pagebreak">Workload Detail</h2>
+  <table><thead><tr><th>Task</th><th>Type</th><th>Assigned</th><th>Role</th><th>Due</th><th>Hours</th><th>Scope</th><th>Priority</th><th>Status</th></tr></thead><tbody>
+    ${workloadRows || `<tr><td colspan="9" class="muted">No workload items entered for this period.</td></tr>`}
+  </tbody></table>
+
+  <div class="footer">Generated from the Research Capacity Planner prototype. Figures are planning estimates and should be validated against actual workload data over time.</div>
+</body>
+</html>`;
+
+      const reportWindow = window.open("", "_blank");
+      if (!reportWindow) {
+        alert("Popup blocked. Please allow popups for this file to generate the report.");
+        return;
+      }
+      reportWindow.document.open();
+      reportWindow.document.write(reportHtml);
+      reportWindow.document.close();
+    }
+
+    function exportJSON() {
+      downloadFile("research_capacity_planner_data.json", JSON.stringify(state, null, 2), "application/json");
+    }
+
+    function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (!imported.assumptions || !imported.personnel || !imported.taskLibrary || !imported.workload) {
+            throw new Error("Invalid file structure.");
+          }
+          state = imported;
+          render();
+        } catch (err) {
+          alert("Unable to import JSON file. Check that it came from this prototype.");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    function exportCSV() {
+      const peopleById = Object.fromEntries(state.personnel.map(p => [p.id, p]));
+      const header = ["Task", "Planning Week", "Type", "Assigned To", "Role", "Due Date", "Estimated Hours", "Scope", "Priority", "Status", "Notes"];
+      const rows = state.workload.map(w => {
+        const person = peopleById[w.assignedTo];
+        return [w.name, w.weekStart || "", w.type, person?.name || "Unassigned", person?.role || "", w.dueDate, w.hours, w.scope || "RAD", w.priority, w.status, w.notes || ""];
+      });
+      const csv = [header, ...rows].map(row => row.map(csvEscape).join(",")).join("\n");
+      downloadFile("research_capacity_workload_forecast.csv", csv, "text/csv");
+    }
+
+    function resetAll() {
+      if (!confirm("Reset all prototype data to defaults? This will clear local changes.")) return;
+      state = clone(defaultState);
+      saveState();
+      render();
+    }
+
+    function downloadFile(filename, content, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function csvEscape(value) {
+      const str = String(value ?? "");
+      return `"${str.replaceAll('"', '""')}"`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value);
+    }
+
+    document.addEventListener("DOMContentLoaded", render);
+  </script>
+</body>
+</html>
